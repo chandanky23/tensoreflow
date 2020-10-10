@@ -190,16 +190,16 @@ ist_label = np.argmax(ist_pred)
 print(ist_label)
 """ 7 -> 9.9481732e-01 """
 
-# Lets get predictions for first 5 samples in test data
-ist_5_prediction = predictions[0:5]
-print(ist_5_prediction.shape)
-""" (5, 10) """
-ist_5_label = np.argmax(ist_5_prediction, axis=1)
-print(ist_5_label)
-"""[7 2 1 0 4]""" # ist prediction is for number 7, second for 2 and so on....
+# Lets get predictions for first 6 samples in test data
+ist_6_prediction = predictions[0:6]
+print(ist_6_prediction.shape)
+""" (6, 10) """
+ist_6_label = np.argmax(ist_6_prediction, axis=1)
+print(ist_6_label)
+"""[7 2 1 0 4 1]""" # ist prediction is for number 7, second for 2 and so on....
 
 # plotting the ist 5 images
-for i in range(5):
+for i in range(4):
   plt.subplot(2,3, i+1)
   plt.imshow(x_test[i], cmap='gray')
 plt.show()
