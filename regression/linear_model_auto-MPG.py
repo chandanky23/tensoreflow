@@ -126,7 +126,7 @@ def plot():
     plt.ylabel('MPG')
     plt.legend()
 
-print(plot())
+# print(plot())
 # -------------------------------------------------- NORMALIZE DATA --------------------------------------------------
 
 # As the data set has different mean, standard deviation and this can confuse our model
@@ -213,32 +213,32 @@ optim = keras.optimizers.Adam(lr=0.1)
 # compile model
 single_feature_model.compile(optimizer=optim, loss=loss) # we do not provide accuracy as it makes no sense for linear model
 
-history = single_feature_model.fit(
-  x_train_features[feature],
-  x_train_labels,
-  epochs=100,
-  verbose=1,
-  validation_split=0.2 # Calculate validation result on 20% of the training data (this is used to twig the Hyper parameter)
-)
+# history = single_feature_model.fit(
+#   x_train_features[feature],
+#   x_train_labels,
+#   epochs=100,
+#   verbose=1,
+#   validation_split=0.2 # Calculate validation result on 20% of the training data (this is used to twig the Hyper parameter)
+# )
 
 # -------------------------------------------------- PLOT THE LOSS w.r.t HISTORY --------------------------------------------------
-def plot_loss(history):
-  plt.plot(history.history['loss'], label='loss')
-  plt.plot(history.history['val_loss'], label='val_loss') # val_loss -> validation loss, automatically provided by fit method
-  plt.ylim([0, 25]) # sets the y-axis limits (0, 25)
-  plt.xlabel('Epoch')
-  plt.ylabel('Error [MPG]')
-  plt.legend() # A legend is an area describing the elements of the graph
-  plt.grid(True)
+# def plot_loss(history):
+#   plt.plot(history.history['loss'], label='loss')
+#   plt.plot(history.history['val_loss'], label='val_loss') # val_loss -> validation loss, automatically provided by fit method
+#   plt.ylim([0, 25]) # sets the y-axis limits (0, 25)
+#   plt.xlabel('Epoch')
+#   plt.ylabel('Error [MPG]')
+#   plt.legend() # A legend is an area describing the elements of the graph
+#   plt.grid(True)
 
-plot_loss(history)
+# plot_loss(history)
 
 # -------------------------------------------------- Evaluate the model --------------------------------------------------
-single_feature_model.evaluate(
-  x_test_features[feature],
-  x_test_labels,
-  verbose=1
-)
+# single_feature_model.evaluate(
+#   x_test_features[feature],
+#   x_test_labels,
+#   verbose=1
+# )
 
 """ 3/3 [==============================] - 0s 436us/step - loss: 3.6494 """
 
@@ -258,6 +258,60 @@ def plot_predict_evaluate(feature, x=None, y=None):
   plt.ylabel('MPG')
   plt.legend()
 
-plot_predict_evaluate(feature, x,y)
-#%%
+# plot_predict_evaluate(feature, x,y)
 
+
+#########################################################***********#########################################################
+# --------------------- Now converting our linear regression model to a DEEP NEURAL network ------------------------
+
+dnn_model = keras.Sequential([
+  single_feature_normalizer,
+  layers.Dense(64, activation='relu'),
+  layers.Dense(64, activation='relu'),
+  layers.Dense(1) # one output (one class)
+])
+
+# Compile with loss and Adam optimizer
+dnn_model.compile(
+  loss=loss,
+  optimizer=tf.keras.optimizers.Adam(0.001)
+)
+dnn_model.summary()
+"""
+Model: "sequential_1"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+normalization_1 (Normalizati (None, 1)                 3         
+_________________________________________________________________
+dense_1 (Dense)              (None, 64)                128       
+_________________________________________________________________
+dense_2 (Dense)              (None, 64)                4160      
+_________________________________________________________________
+dense_3 (Dense)              (None, 1)                 65        
+=================================================================
+Total params: 4,356 # A lot ore params to train
+Trainable params: 4,353
+Non-trainable params: 3
+"""
+
+dnn_model.fit(
+  x_train_features[feature], # feature is "Horsepower"
+  x_train_labels,
+  validation_split=0.2,
+  verbose=1,
+  epochs=100
+)
+
+# Evaluate our model
+dnn_model.evaluate(x_test_features[feature], x_test_labels, verbose=1)
+""" 3/3 [==============================] - 0s 501us/step - loss: 2.9320 """ # here its below 3 compared to previous model.
+
+# Predict and plot
+x = tf.linspace(range_min, range_max, 200)
+y = dnn_model.predict(x)
+
+plot_predict_evaluate(feature, x, y)
+
+
+#%%
