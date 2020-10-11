@@ -168,3 +168,58 @@ First example: [[   4.    90.    75.  2125.    14.5   74.     1.     0.     0. ]
 """
 Normalized:  [[-0.871 -1.011 -0.785 -1.027 -0.38  -0.517  0.776 -0.466 -0.496]]
 """
+
+# -------------------------------------------------- REGRESSION --------------------------------------------------
+# using for example the Horsepower feature
+# Normalise the input Horsepower
+# Apply a linear transformation (y=mx+c) to produce 1 output using layers.Dense
+
+feature = 'Horsepower'
+single_feature = np.array(x_train_features[feature])
+# print(single_feature.shape, x_train_features.shape)
+""" (314,) (314, 9) """
+
+# Normalize the Horsepower
+single_feature_normalizer = preprocessing.Normalization()
+
+# Adapt to the data (one feature)
+single_feature_normalizer.adapt(single_feature)
+
+# Sequential Model
+# Lnear model
+single_feature_model = keras.models.Sequential([
+  single_feature_normalizer,
+  layers.Dense(units=1) # units is basically outputs
+])
+# print(single_feature_model.summary())
+"""
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+normalization_1 (Normalizati (None, 1)                 3         
+_________________________________________________________________
+dense (Dense)                (None, 1)                 2         
+=================================================================
+Total params: 5
+Trainable params: 2
+Non-trainable params: 3
+_________________________________________________________________
+"""
+
+# -------------------------------------------------- LOSS and OPTIMIZER --------------------------------------------------
+loss = keras.losses.MeanAbsoluteError() # we can also use MeanSquaredError (y - y^)
+optim = keras.optimizers.Adam(lr=0.1)
+
+# compile model
+single_feature_model.compile(optimizer=optim, loss=loss) # we do not provide accuracy as it makes no sense for linear model
+
+history = single_feature_model.fit(
+  x_train_features[feature],
+  x_train_labels,
+  epochs=100,
+  verbose=1,
+  validation_split=0.2 # Calculate validation result on 20% of the training data (this is used to twig the Hyper parameter)
+)
+
+# -------------------------------------------------- PLOT THE HISTORY --------------------------------------------------
