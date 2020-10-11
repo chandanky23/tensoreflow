@@ -3,6 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import urllib
 
 """#%%"""
+#%%
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -114,8 +115,7 @@ x_train_labels = x_train_features.pop('MPG')
 x_test_labels = x_test_features.pop('MPG')
 
 # ------------------------------------------ PLOTTING THE FEATURES USING MATPLOTLIB ------------------------------------------
-# To print remove """
-"""
+
 def plot():
   for feature in x_test_features:
     plt.figure(figsize=(10, 8))
@@ -127,7 +127,6 @@ def plot():
     plt.legend()
 
 print(plot())
-"""#%%
 # -------------------------------------------------- NORMALIZE DATA --------------------------------------------------
 
 # As the data set has different mean, standard deviation and this can confuse our model
@@ -222,4 +221,43 @@ history = single_feature_model.fit(
   validation_split=0.2 # Calculate validation result on 20% of the training data (this is used to twig the Hyper parameter)
 )
 
-# -------------------------------------------------- PLOT THE HISTORY --------------------------------------------------
+# -------------------------------------------------- PLOT THE LOSS w.r.t HISTORY --------------------------------------------------
+def plot_loss(history):
+  plt.plot(history.history['loss'], label='loss')
+  plt.plot(history.history['val_loss'], label='val_loss') # val_loss -> validation loss, automatically provided by fit method
+  plt.ylim([0, 25]) # sets the y-axis limits (0, 25)
+  plt.xlabel('Epoch')
+  plt.ylabel('Error [MPG]')
+  plt.legend() # A legend is an area describing the elements of the graph
+  plt.grid(True)
+
+plot_loss(history)
+
+# -------------------------------------------------- Evaluate the model --------------------------------------------------
+single_feature_model.evaluate(
+  x_test_features[feature],
+  x_test_labels,
+  verbose=1
+)
+
+""" 3/3 [==============================] - 0s 436us/step - loss: 3.6494 """
+
+# -------------------------------------------------- PREDICT and PLOT --------------------------------------------------
+# creating a random sample
+range_min = np.min(x_test_features[feature]) - 10
+range_max = np.max(x_test_features[feature]) + 10
+x = tf.linspace(range_min, range_max, 200) # 200 is for creating an evenly spaced values begining at start ,i.e, range_min
+y = single_feature_model.predict(x)
+
+def plot_predict_evaluate(feature, x=None, y=None):
+  plt.figure(figsize=(10, 8))
+  plt.scatter(x_train_features[feature], x_train_labels, label='Data')
+  if x is not None and y is not None:
+    plt.plot(x,y, color='k', label='Predictions')
+  plt.xlabel(feature)
+  plt.ylabel('MPG')
+  plt.legend()
+
+plot_predict_evaluate(feature, x,y)
+#%%
+
